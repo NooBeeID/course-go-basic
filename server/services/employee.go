@@ -57,6 +57,25 @@ func (e *EmployeeServices) DeleteEmbloyeeByID(id string) bool {
 	return true
 }
 
+func (e *EmployeeServices) GetEmployeeByID(id string) *params.EmployeeSingleView {
+	defer helper.HandleError()
+	employee, err := e.EmployeeRepository.FindByID(id)
+	helper.HandlePanicIfError(err)
+
+	return makeEmployeeSingleView(employee)
+}
+
+func (e *EmployeeServices) UpdateByID(request *params.EmployeeUpdate) bool {
+	defer helper.HandleError()
+
+	model := request.ParseToModel()
+	err := e.EmployeeRepository.UpdateByID(model)
+	helper.HandlePanicIfError(err)
+
+	return true
+
+}
+
 func makeEmployeeListView(models *[]models.Employee) *[]params.EmployeeSingleView {
 	var params []params.EmployeeSingleView
 	for _, model := range *models {

@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"database/sql"
-	"errors"
 	"go-web-template/server/models"
 )
 
@@ -115,8 +114,24 @@ func (e *employeeRepo) FindByID(id string) (*models.Employee, error) {
 	return &employee, nil
 }
 
-func (e *employeeRepo) UpdateByID(id string, employee *models.Employee) error {
-	panic(errors.New(""))
+func (e *employeeRepo) UpdateByID(employee *models.Employee) error {
+	query := `
+		UPDATE employees
+		SET name=$1, address=$2, nip=$3, updated_at=$4
+		WHERE id=$5
+	`
+
+	stmt, err := e.DB.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close()
+
+	_, err = stmt.Exec(employee.Name, employee.Address, employee.NIP, employee.UpdatedAt, employee.ID)
+
+	return err
+
 }
 
 func (e *employeeRepo) DeleteByID(id string) error {

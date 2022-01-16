@@ -20,7 +20,6 @@ func StartServer(router *http.ServeMux, port string, db *sql.DB) {
 
 func buildRoute(router *http.ServeMux, db *sql.DB) {
 	homeRoute(router, db)
-	roleRoute(router, db)
 	employeeRoute(router, db)
 }
 
@@ -35,13 +34,7 @@ func employeeRoute(router *http.ServeMux, db *sql.DB) {
 	employeeController := controllers.NewEmployeeController(db)
 
 	router.HandleFunc("/employees", employeeController.Index)
+	router.HandleFunc("/employees/update", employeeController.UpdateByID)
 	router.HandleFunc("/employees/add", employeeController.Add)
 	router.HandleFunc("/employees/delete", employeeController.DeleteByID)
-}
-
-func roleRoute(router *http.ServeMux, db *sql.DB) {
-	roleController := controllers.NewRoleController(db)
-
-	router.HandleFunc("/roles", roleController.Index)
-	router.HandleFunc("/roles/add", roleController.Add)
 }

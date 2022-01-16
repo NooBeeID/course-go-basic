@@ -11,12 +11,15 @@ import (
 	"log"
 	"net/http"
 	"path"
+
+	"github.com/google/uuid"
 )
 
 type EmployeeController interface {
 	Index(w http.ResponseWriter, r *http.Request)
 	Add(w http.ResponseWriter, r *http.Request)
 	DeleteByID(w http.ResponseWriter, r *http.Request)
+	UpdateByID(w http.ResponseWriter, r *http.Request)
 }
 
 type employeeController struct {
@@ -141,4 +144,83 @@ func (e *employeeController) DeleteByID(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Write([]byte(msg))
+}
+
+func (e *employeeController) UpdateByID(w http.ResponseWriter, r *http.Request) {
+	method := r.Method
+	query := r.URL.Query()
+
+	id := query["id"][0]
+
+	if method == "GET" {
+
+		tmpl, err := template.ParseFiles(path.Join("static", "pages/employees/update.html"), utils.LayoutMaster)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		employee := services.NewEmployeeService(e.DB).GetEmployeeByID(id)
+
+		web := apps.RenderWeb{
+			Title: "Halaman Detail Employee",
+			Data:  employee,
+		}
+
+		err = tmpl.Execute(w, web)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else if method == "POST" {
+		err := r.ParseForm()
+		if err != nil {
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		newID, err := uuid.Parse(id)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		var request params.EmployeeUpdate = params.EmployeeUpdate{
+			ID:      newID,
+			NIP:     r.Form.Get("nip"),
+			Address: r.Form.Get("address"),
+			Name:    r.Form.Get("name"),
+		}
+
+		employeeServices := services.NewEmployeeService(e.DB)
+
+		isSuccess := employeeServices.UpdateByID(&request)
+
+		msg := ""
+		if isSuccess {
+			msg = `
+				<script>
+					alert("Ubah data pegawai berhasil !")
+					window.location.href="../employees"
+				</script>
+			`
+		} else {
+
+			msg = `
+				<script>
+					alert("Ubah data pegawai gagal !")
+					window.location.href="../employees"
+				</script>
+			`
+		}
+
+		w.Write([]byte(msg))
+	} else {
+		msg := fmt.Sprintf("Method %s tidak diperbolehkan", method)
+		w.Write([]byte(msg))
+	}
 }
