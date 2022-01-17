@@ -1,6 +1,8 @@
 package helper
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func HandlePanicIfError(err error) {
 	if err != nil {

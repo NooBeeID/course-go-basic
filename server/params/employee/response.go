@@ -1,8 +1,6 @@
 package params
 
 import (
-	"go-web-template/server/models"
-
 	"github.com/google/uuid"
 )
 
@@ -13,8 +11,4 @@ type EmployeeSingleView struct {
 	Address   string
 	CreatedAt string
 	UpdatedAt string
-}
-
-func (e *EmployeeSingleView) makeSingleView(model models.Employee) {
-
 }

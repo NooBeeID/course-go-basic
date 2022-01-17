@@ -149,8 +149,7 @@ func (e *employeeController) DeleteByID(w http.ResponseWriter, r *http.Request) 
 func (e *employeeController) UpdateByID(w http.ResponseWriter, r *http.Request) {
 	method := r.Method
 	query := r.URL.Query()
-
-	id := query["id"][0]
+	id := query.Get("id")
 
 	if method == "GET" {
 
